@@ -97,6 +97,9 @@ Lunix consists of
 * A toast notification service
 * A bluetooth notification service
 * A network notification service,
+* A NATS-connected PAM authentication module - sets readable and writeable
+  topics for a user.
+* An authentication service that `pam_nats` talks to
 * and other useful stuff.
 
 
