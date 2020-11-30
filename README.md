@@ -4,7 +4,8 @@ Declarative microservice-based linux distribution based on suckless principles
 for desktop and embedded systems. In short, lunix
 
 * uses the nix package manager,
-* tries it's very hardest to push all user-space information through a pubsub (NATS) (sort of like ROS),
+* tries it's very hardest to push all user-space information through a pubsub
+  (NATS) (sort of like ROS),
 * is minimalistic and opinionated
 
 What can you achieve with lunix?
@@ -131,6 +132,59 @@ We also have some neat stuff to extend your setup, such as
 * Each part of lunix can be used on it's own, outside lunix.
 * For really tight embedded environments, we're using buildroot instead of nix.
   We provide buildroot configuration for these packages.
+* Be cloud-native. It should be easy to spin up lunix within a virtual machine,
+  configure it to send syslogs somewhere useful, connect it to a larger NATS
+  cluster, and push updates to it.
+
+
+### lunix-init
+
+The init system borrows ideas from existing init systems; runit, s6, systemd,
+openrc and others. However, improves on them on some key points which merits
+the existance of a new init.
+
+It's able to watch a directory for changes like runit and s6 and automatically
+starts/stops services that has been added/removed. This simplifies service
+management into a simple "create service in the correct place". No need for
+state resolving logic to figure out if a service needs to be restarted when
+updated. It also integrates extremely well with the nix package manager,
+because you can just create a new service directory, and every *changed
+service* will be automatically started/restarted/stopped.
+
+Runit and s6 writes to the service directories which makes it hard to keep them
+in a read-only directory (like nix does). lunix-init does not.
+
+lunix-init also provides service monitoring using NATS.
+
+
+## Cloud-readyness
+
+A design goal for lunix is to be cloud-ready. Thus, we want turn-key solutions
+for creating a cluster of lunix machines which behave as a unified organism. To
+do this, lunix provives easy (optional) mechanism to
+
+* plug a lunix installation into an overlay network (slacks [nebula](https://github.com/slackhq/nebula)
+  or wireguard)
+* manage floating storage (something like ceph or something based on a private
+  ipfs + brig or [dat](https://dat.foundation/)
+* update machines remotely (using `nix copy`)
+* plug in lunix into a NATS message cluster to manage
+* easily spin up k8s on top of lunix
+
+With this, it's easy to manage an extremely large fleet of machines, which can
+be desktops, laptops, virtual machines, bare-metal servers, iot devices, and
+everything else.
+
+
+## Security
+
+* Running lunix on an encrypted drive is easy
+* Pre-configured stuff to provision PKI keys using HSMs
+* Using Hashicorp Vault to provision keys should also be easy
+* Using Yubikeys, PIV smartcards (any PKCS#11-capable device), GPG smartcards,
+  or U2F keys to log into a lunix machine should be trivial. PIV support should
+  be first-class so that companies managing lots and lots of machines can
+  easily grant and revoke user access.
 
 
 ## Ideas
